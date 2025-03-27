@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app import crud, models, schemas
@@ -6,8 +7,8 @@ from datetime import datetime
 
 router = APIRouter()
 
-@router.post("/parkings/", response_model=schemas.Parking)
-def create_parking(parking: schemas.ParkingCreate, db: Session = Depends(get_db)):
+@router.post("/parkings/", response_model=schemas.ParkingRecord)
+def create_parking(parking: schemas.ParkingRecordCreate, db: Session = Depends(get_db)):
     """
     Registra a entrada de um veículo no estacionamento.
     """
@@ -16,7 +17,7 @@ def create_parking(parking: schemas.ParkingCreate, db: Session = Depends(get_db)
         raise HTTPException(status_code=400, detail="Veículo já está estacionado")
     return crud.create_parking(db=db, parking=parking)
 
-@router.get("/parkings/{parking_id}", response_model=schemas.Parking)
+@router.get("/parkings/{parking_id}", response_model=schemas.ParkingTypeBase)
 def read_parking(parking_id: int, db: Session = Depends(get_db)):
     """
     Retorna informações de um veículo específico no estacionamento.
@@ -26,7 +27,7 @@ def read_parking(parking_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Veículo não encontrado")
     return db_parking
 
-@router.get("/parkings/", response_model=list[schemas.Parking])
+@router.get("/parkings/", response_model=list[schemas.ParkingTypeBase])
 def read_parkings(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
     Lista todos os veículos no estacionamento.
@@ -34,8 +35,18 @@ def read_parkings(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     parkings = crud.get_parkings(db, skip=skip, limit=limit)
     return parkings
 
-@router.patch("/parkings/{parking_id}", response_model=schemas.Parking)
-def update_parking(parking_id: int, parking: schemas.ParkingUpdate, db: Session = Depends(get_db)):
+@router.get("/parkingsTypes/", response_model=List[schemas.ParkingType]) 
+def read_parking_types(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Lista todos os tipos de estacionamento cadastrados (ex: Aeroporto, Shopping).
+
+    Retorna uma lista de tipos de estacionamento, cada um com seu ID, nome e capacidade total.
+    """
+    parking_types = crud.get_parking_types(db, skip=skip, limit=limit)
+    return parking_types
+
+@router.patch("/parkings/{parking_id}", response_model=schemas.ParkingRecord)
+def update_parking(parking_id: int, parking: schemas.ParkingRecordUpdate, db: Session = Depends(get_db)):
     """
     Atualiza as informações de um veículo no estacionamento (saída, taxa).
     """

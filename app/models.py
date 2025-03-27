@@ -1,14 +1,62 @@
-from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean
-from sqlalchemy.sql import func
-from app.database import Base
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Boolean,
+    Float,
+    DateTime,
+    ForeignKey,
+    func 
+)
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base 
 
-class Parking(Base):
-    __tablename__ = "parkings"
+Base = declarative_base() 
+
+class ParkingType(Base):
+    __tablename__ = "parking_types"
 
     id = Column(Integer, primary_key=True, index=True)
-    parking_type = Column(String, nullable=False) 
+    name = Column(String, unique=True, index=True, nullable=False)
+    capacity = Column(Integer, nullable=False)
+
+    parking_records = relationship("ParkingRecord", back_populates="parking_type")
+
+    def __repr__(self):
+        return f"<ParkingType(id={self.id}, name='{self.name}', capacity={self.capacity})>"
+
+
+class ParkingRecord(Base):
+    """
+    Represents an individual parking event for a specific vehicle
+    at a specific ParkingType facility.
+    """
+    __tablename__ = "parking_records"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    parking_type_id = Column(Integer, ForeignKey("parking_types.id"), nullable=False)
+
     license_plate = Column(String, index=True, nullable=False)
-    entry_time = Column(DateTime(timezone=True), server_default=func.now())
+    vehicle_year = Column(Integer, nullable=True) 
+    vehicle_color = Column(String, nullable=True) 
+
+    entry_time = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     exit_time = Column(DateTime(timezone=True), nullable=True)
-    is_parked = Column(Boolean, default=True)
-    fee = Column(Float, nullable=True)
+    is_parked = Column(Boolean, default=True, nullable=False) 
+    fee = Column(Float, nullable=True) 
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(), 
+        nullable=False
+    )
+
+    parking_type = relationship("ParkingType", back_populates="parking_records")
+
+    def __repr__(self):
+        status = "Parked" if self.is_parked else "Exited"
+        return (f"<ParkingRecord(id={self.id}, plate='{self.license_plate}', "
+                f"type_id={self.parking_type_id}, status='{status}')>")
