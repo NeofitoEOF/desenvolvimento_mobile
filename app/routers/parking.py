@@ -1,4 +1,6 @@
+import logging
 from typing import List
+from venv import logger
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app import crud, models, schemas

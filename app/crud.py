@@ -3,7 +3,7 @@ from app import models, schemas
 from datetime import datetime
 
 def create_parking(db: Session, parking: schemas.ParkingTypeBase):
-    db_parking = models.Parking(**parking.dict())
+    db_parking = models.ParkingRecord(**parking.dict())
     db.add(db_parking)
     db.commit()
     db.refresh(db_parking)
@@ -13,16 +13,16 @@ def get_parking_types(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.ParkingType).offset(skip).limit(limit).all()
 
 def get_parking(db: Session, parking_id: int):
-    return db.query(models.Parking).filter(models.Parking.id == parking_id).first()
+    return db.query(models.ParkingRecord).filter(models.ParkingRecord.id == parking_id).first()
 
 def get_parkings(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Parking).offset(skip).limit(limit).all()
+    return db.query(models.ParkingRecord).offset(skip).limit(limit).all()
 
 def get_parking_by_license_plate(db: Session, license_plate: str):
-    return db.query(models.Parking).filter(models.Parking.license_plate == license_plate).filter(models.Parking.is_parked == True).first()
+    return db.query(models.ParkingRecord).filter(models.ParkingRecord.license_plate == license_plate).filter(models.ParkingRecord.is_parked == True).first()
 
 def update_parking(db: Session, parking_id: int, parking: schemas.ParkingRecordUpdate):
-    db_parking = db.query(models.Parking).filter(models.Parking.id == parking_id).first()
+    db_parking = db.query(models.ParkingRecord).filter(models.ParkingRecord.id == parking_id).first()
     if db_parking:
         for var, value in vars(parking).items():
             if value is not None:
@@ -32,7 +32,7 @@ def update_parking(db: Session, parking_id: int, parking: schemas.ParkingRecordU
     return db_parking
 
 def delete_parking(db: Session, parking_id: int):
-    db_parking = db.query(models.Parking).filter(models.Parking.id == parking_id).first()
+    db_parking = db.query(models.ParkingRecord).filter(models.ParkingRecord.id == parking_id).first()
     if db_parking:
         db.delete(db_parking)
         db.commit()
