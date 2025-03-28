@@ -11,70 +11,12 @@ router = APIRouter()
 
 @router.post("/parkings/", response_model=schemas.ParkingRecord)
 def create_parking(parking: schemas.ParkingRecordCreate, db: Session = Depends(get_db)):
-    """
-    Registra a entrada de um veículo no estacionamento.
-    """
-    existing_parking = crud.get_parking_by_license_plate(db, license_plate=parking.license_plate)
-    if existing_parking:
-        raise HTTPException(status_code=400, detail="Veículo já está estacionado")
-    return crud.create_parking(db=db, parking=parking)
+    try:
+        return crud.create_parking(db=db, parking=parking)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/parkings/{parking_id}", response_model=schemas.ParkingTypeBase)
-def read_parking(parking_id: int, db: Session = Depends(get_db)):
-    """
-    Retorna informações de um veículo específico no estacionamento.
-    """
-    db_parking = crud.get_parking(db, parking_id=parking_id)
-    if db_parking is None:
-        raise HTTPException(status_code=404, detail="Veículo não encontrado")
-    return db_parking
-
-@router.get("/parkings/", response_model=list[schemas.ParkingTypeBase])
-def read_parkings(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """
-    Lista todos os veículos no estacionamento.
-    """
-    parkings = crud.get_parkings(db, skip=skip, limit=limit)
-    return parkings
-
-@router.get("/parkingsTypes/", response_model=List[schemas.ParkingType]) 
+@router.get("/parkingsTypes/", response_model=List[schemas.ParkingType])
 def read_parking_types(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """
-    Lista todos os tipos de estacionamento cadastrados (ex: Aeroporto, Shopping).
-
-    Retorna uma lista de tipos de estacionamento, cada um com seu ID, nome e capacidade total.
-    """
-    parking_types = crud.get_parking_types(db, skip=skip, limit=limit)
+    parking_types = db.query(models.ParkingType).offset(skip).limit(limit).all()
     return parking_types
-
-@router.patch("/parkings/{parking_id}", response_model=schemas.ParkingRecord)
-def update_parking(parking_id: int, parking: schemas.ParkingRecordUpdate, db: Session = Depends(get_db)):
-    """
-    Atualiza as informações de um veículo no estacionamento (saída, taxa).
-    """
-    existing_parking = crud.get_parking(db, parking_id=parking_id)
-    if not existing_parking:
-        raise HTTPException(status_code=404, detail="Veículo não encontrado")
-
-    if parking.exit_time and not parking.fee:
-        entry_time = existing_parking.entry_time
-        exit_time = parking.exit_time
-        duration = exit_time - entry_time
-
-        fee = (duration.total_seconds() / 3600) * 10
-        parking.fee = round(fee, 2)  
-
-    updated_parking = crud.update_parking(db, parking_id, parking)
-    if not updated_parking:
-        raise HTTPException(status_code=404, detail="Veículo não encontrado")
-    return updated_parking
-
-
-@router.delete("/parkings/{parking_id}", response_model=bool)
-def delete_parking(parking_id: int, db: Session = Depends(get_db)):
-    """
-    Remove um veículo do estacionamento.
-    """
-    if not crud.delete_parking(db, parking_id):
-        raise HTTPException(status_code=404, detail="Veículo não encontrado")
-    return True

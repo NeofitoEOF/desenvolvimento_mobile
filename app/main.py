@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.database import engine
 from app import models
-from app.routers import parking, healthcheck
+from app.routers import parking
 from fastapi.middleware.cors import CORSMiddleware
 
 models.Base.metadata.create_all(bind=engine)
@@ -17,4 +17,3 @@ app.add_middleware(
 )
 
 app.include_router(parking.router)
-app.include_router(healthcheck.router)

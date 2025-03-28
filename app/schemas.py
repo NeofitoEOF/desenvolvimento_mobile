@@ -10,11 +10,14 @@ class ParkingTypeBase(BaseModel):
 class ParkingTypeCreate(ParkingTypeBase):
     pass 
 
+# schemas.py
 class ParkingType(ParkingTypeBase): 
     id: int
+    occupied_spaces: int  
+    available_spaces: int 
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ParkingRecordBase(BaseModel):

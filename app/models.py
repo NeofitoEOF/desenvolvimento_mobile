@@ -13,39 +13,36 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base() 
 
+# models.py
 class ParkingType(Base):
     __tablename__ = "parking_types"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True, nullable=False)
-    capacity = Column(Integer, nullable=False)
+    capacity = Column(Integer, nullable=False) 
+    occupied_spaces = Column(Integer, default=0, nullable=False)  
 
     parking_records = relationship("ParkingRecord", back_populates="parking_type")
 
+    @property
+    def available_spaces(self):
+        return self.capacity - self.occupied_spaces
+
     def __repr__(self):
-        return f"<ParkingType(id={self.id}, name='{self.name}', capacity={self.capacity})>"
+        return f"<ParkingType(id={self.id}, name='{self.name}', capacity={self.capacity}, occupied={self.occupied_spaces})>"
 
 
 class ParkingRecord(Base):
-    """
-    Represents an individual parking event for a specific vehicle
-    at a specific ParkingType facility.
-    """
     __tablename__ = "parking_records"
-
     id = Column(Integer, primary_key=True, index=True)
-
     parking_type_id = Column(Integer, ForeignKey("parking_types.id"), nullable=False)
-
     license_plate = Column(String, index=True, nullable=False)
     vehicle_year = Column(Integer, nullable=True) 
     vehicle_color = Column(String, nullable=True) 
-
     entry_time = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     exit_time = Column(DateTime(timezone=True), nullable=True)
     is_parked = Column(Boolean, default=True, nullable=False) 
     fee = Column(Float, nullable=True) 
-
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(
         DateTime(timezone=True),
@@ -53,7 +50,6 @@ class ParkingRecord(Base):
         onupdate=func.now(), 
         nullable=False
     )
-
     parking_type = relationship("ParkingType", back_populates="parking_records")
 
     def __repr__(self):
