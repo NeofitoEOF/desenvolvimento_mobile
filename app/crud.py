@@ -1,3 +1,4 @@
+from http.client import HTTPException
 from sqlalchemy.orm import Session
 from app import models, schemas
 from datetime import datetime
@@ -63,3 +64,33 @@ def update_parking(db: Session, parking_id: int, parking: schemas.ParkingRecordU
     db.commit()
     db.refresh(db_parking)
     return db_parking
+
+def get_parked_vehicles_by_plate(db: Session, license_plate: str, skip: int = 0, limit: int = 100):
+    return db.query(models.ParkingRecord).filter(
+        models.ParkingRecord.license_plate.ilike(f"%{license_plate}%"),
+        models.ParkingRecord.is_parked == True
+    ).order_by(models.ParkingRecord.entry_time.desc()).offset(skip).limit(limit).all()
+
+
+
+def delete_parked_vehicles_by_plate(db: Session, license_plate: str):
+    parked_vehicle = db.query(models.ParkingRecord).filter(
+        models.ParkingRecord.license_plate == license_plate, 
+        models.ParkingRecord.is_parked == True
+    ).first()
+    
+    if not parked_vehicle:
+        raise HTTPException(status_code=404, detail="Veículo não encontrado ou já removido")
+    
+    parking_type = db.query(models.ParkingType).filter(
+        models.ParkingType.id == parked_vehicle.parking_type_id
+    ).first()
+    
+    if parking_type:
+        parking_type.occupied_spaces -= 1
+        parking_type.capacity += 1
+    
+    db.delete(parked_vehicle)
+    db.commit()
+    
+    return {"message": f"Veículo {license_plate} removido e vaga liberada com sucesso"}

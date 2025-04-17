@@ -10,7 +10,6 @@ class ParkingTypeBase(BaseModel):
 class ParkingTypeCreate(ParkingTypeBase):
     pass 
 
-# schemas.py
 class ParkingType(ParkingTypeBase): 
     id: int
     occupied_spaces: int  

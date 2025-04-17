@@ -13,7 +13,6 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base() 
 
-# models.py
 class ParkingType(Base):
     __tablename__ = "parking_types"
 
