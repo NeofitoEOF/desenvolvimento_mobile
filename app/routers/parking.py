@@ -1,10 +1,13 @@
-import logging
 from typing import List, Optional
 from venv import logger
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from app import crud, models, schemas
-from app.database import get_db
+
+from requests import Session
+
+from app import crud
+from app.models import models
+from app.schemas import schemas
+from fastapi import APIRouter, Depends, HTTPException # type: ignore
+from app.database.database import get_db
 from datetime import datetime
 
 router = APIRouter()

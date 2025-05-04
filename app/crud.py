@@ -1,7 +1,11 @@
 from http.client import HTTPException
-from sqlalchemy.orm import Session
-from app import models, schemas
+
+from requests import Session
+
+from app.models import models
 from datetime import datetime
+
+from app.schemas import schemas
 
 def create_parking(db: Session, parking: schemas.ParkingRecordCreate):
     existing_parking = get_parking_by_license_plate(db, license_plate=parking.license_plate)

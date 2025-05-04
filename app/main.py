@@ -1,8 +1,8 @@
-from fastapi import FastAPI
-from app.database import engine
-from app import models
+from app.models import models
+from fastapi import FastAPI # type: ignore
+from app.database.database import engine
 from app.routers import parking
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware # type: ignore
 
 models.Base.metadata.create_all(bind=engine)
 

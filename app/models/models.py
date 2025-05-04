@@ -1,4 +1,4 @@
-from sqlalchemy import (
+from sqlalchemy import ( # type: ignore
     Column,
     Integer,
     String,
@@ -8,8 +8,8 @@ from sqlalchemy import (
     ForeignKey,
     func 
 )
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base 
+from sqlalchemy.orm import relationship # type: ignore
+from sqlalchemy.ext.declarative import declarative_base  # type: ignore
 
 Base = declarative_base() 
 
