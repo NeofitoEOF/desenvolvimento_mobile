@@ -5,3 +5,7 @@ SQLAlchemy
 psycopg2-binary
 python-dotenv
 requests
+pyjwt
+passlib
+python-multipart
+bcrypt

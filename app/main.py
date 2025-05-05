@@ -1,19 +1,17 @@
+from fastapi import FastAPI
+from app.routers import parking, auth
+from app.database import database
 from app.models import models
-from fastapi import FastAPI # type: ignore
-from app.database.database import engine
-from app.routers import parking
-from fastapi.middleware.cors import CORSMiddleware # type: ignore
 
-models.Base.metadata.create_all(bind=engine)
+app = FastAPI(title="Parking API", description="API for parking management")
 
-app = FastAPI()
+# Configuração do banco de dados
+models.Base.metadata.create_all(bind=database.engine)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  
-    allow_credentials=True,
-    allow_methods=["*"],  
-    allow_headers=["*"],  
-)
-
+# Inclusão dos routers
+app.include_router(auth.router)
 app.include_router(parking.router)
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to Parking API"}

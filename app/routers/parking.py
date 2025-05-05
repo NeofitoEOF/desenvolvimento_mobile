@@ -2,25 +2,28 @@ from typing import List, Optional
 from venv import logger
 
 from requests import Session
-
 from app import crud
+from app.auth.auth import get_current_active_user
 from app.models import models
 from app.schemas import schemas
 from fastapi import APIRouter, Depends, HTTPException # type: ignore
 from app.database.database import get_db
 from datetime import datetime
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/parking",
+    tags=["parking"]
+)
 
 @router.post("/parkings/", response_model=schemas.ParkingRecord)
-def create_parking(parking: schemas.ParkingRecordCreate, db: Session = Depends(get_db)):
+def create_parking(parking: schemas.ParkingRecordCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_active_user)):
     try:
         return crud.create_parking(db=db, parking=parking)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/parkingsTypes/", response_model=List[schemas.ParkingType])
-def read_parking_types(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+@router.get("/parkingsTypes/", response_model=List[schemas.ParkingType] )
+def read_parking_types(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_active_user)):
     parking_types = db.query(models.ParkingType).offset(skip).limit(limit).all()
     return parking_types
 
@@ -29,7 +32,8 @@ def search_parked_vehicles_by_plate(
     license_plate: str,
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
 ):
     return crud.get_parked_vehicles_by_plate(
         db,
@@ -41,6 +45,7 @@ def search_parked_vehicles_by_plate(
 @router.delete("/parkings/active/{license_plate}")
 def delete_parked_vehicle(
     license_plate: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
 ):
     return crud.delete_parked_vehicles_by_plate(db, license_plate=license_plate)

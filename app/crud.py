@@ -7,6 +7,25 @@ from datetime import datetime
 
 from app.schemas import schemas
 
+def get_user(db: Session, username: str):
+    return db.query(models.User).filter(models.User.username == username).first()
+
+def get_user_by_email(db: Session, email: str):
+    return db.query(models.User).filter(models.User.email == email).first()
+
+def create_user(db: Session, user: schemas.UserCreate):
+    from app.auth.auth import get_password_hash
+    hashed_password = get_password_hash(user.password)
+    db_user = models.User(
+        username=user.username,
+        email=user.email,
+        hashed_password=hashed_password
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
 def create_parking(db: Session, parking: schemas.ParkingRecordCreate):
     existing_parking = get_parking_by_license_plate(db, license_plate=parking.license_plate)
     if existing_parking:
