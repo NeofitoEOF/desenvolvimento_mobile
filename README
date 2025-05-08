@@ -1,0 +1,55 @@
+Estacionamento Mobile - Back-End
+Este repositório contém o projeto back-end para o aplicativo Estacionamento Mobile, desenvolvido em FastAPI. O objetivo é fornecer uma API robusta e escalável para gerenciamento de estacionamentos em diferentes pontos, como aeroporto, estacionamento central e shopping.
+
+Principais Funcionalidades
+Cadastro e autenticação de usuários
+Gerenciamento de estacionamentos e vagas
+Integração com o aplicativo mobile (React Native)
+API RESTful documentada via Swagger
+Pré-requisitos
+Docker instalado na sua máquina
+Como Executar
+O projeto já está pronto para ser executado via Docker, facilitando a configuração e o deploy em qualquer ambiente.
+
+Clone este repositório:
+bash
+Copy Code
+git clone https://github.com/seu-usuario/estacionamento-backend.git
+cd estacionamento-backend
+Execute o container Docker:
+bash
+Copy Code
+docker compose up
+ou, se estiver usando apenas o Docker:
+bash
+Copy Code
+docker build -t estacionamento-backend .
+docker run -p 8000:8000 estacionamento-backend
+Acesse a API:
+Documentação automática (Swagger): http://localhost:8000/docs
+Redoc: http://localhost:8000/redoc
+Estrutura do Projeto
+/app
+  /routers
+  /models
+  /schemas
+  main.py
+Dockerfile
+docker-compose.yml
+requirements.txt
+README.md
+Tecnologias Utilizadas
+FastAPI
+Python 3.10+
+Docker & Docker Compose
+Uvicorn (ASGI server)
+[Outras dependências listadas em requirements.txt]
+Variáveis de Ambiente
+Se necessário, configure variáveis de ambiente no arquivo .env para personalizar conexões com banco de dados, chaves secretas, etc.
+
+Contribuição
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.
+
+Licença
+Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+
